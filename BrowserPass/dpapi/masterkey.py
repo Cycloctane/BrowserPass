@@ -14,8 +14,7 @@ def passwordSHA1(password: str) -> bytes:
 
 def sidSHA1HMAC(hashed_password: bytes, sid: str) -> bytes:
     encoded_sid = (sid+"\x00").encode("utf-16le")
-    hashed_sid = hmac.new(hashed_password, encoded_sid, sha1)
-    return hashed_sid.digest()
+    return hmac.new(hashed_password, encoded_sid, sha1).digest()
 
 
 class MasterKey():
@@ -46,6 +45,9 @@ class MasterKey():
         aes = ENCRYPT_METHODS[self.encrypt_method](key, iv=iv)
         return aes.decrypt(self.cipher)[-64:]
 
+    def decrypt_with_passwd(self, password: str, sid: str) -> bytes:
+        return self.decrypt(passwordSHA1(password), sid)
+
 
 class MasterKeyFile():
     version: int
@@ -64,6 +66,8 @@ class MasterKeyFile():
         with open(file_path, "rb") as f:
             readstruct_ = partial(readstruct, io=f)
             self.version = readstruct_("<L")
+            if self.version != 2:
+                raise Exception("Unsupported Masterkey")
             self.guid = readstruct_("8x 72s").decode("utf-16le")
             self.masterkey_length = readstruct_("<12x Q")
             self.backupkey_length = readstruct_("<Q")

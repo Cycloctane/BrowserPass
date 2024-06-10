@@ -7,9 +7,8 @@ from Crypto.Util.Padding import unpad
 import hmac
 
 from .utils import readstruct
-from .crypto_support import ENCRYPT_METHODS, HASH_METHODS
+from .crypto_support import ENCRYPT_METHODS, HASH_METHODS, BLOCK_SIZE
 
-BLOCK_SIZE = 16
 
 class DPAPIBlob():
     masterkey_guid: str
@@ -44,4 +43,6 @@ class DPAPIBlob():
                                digestmod=partial(hashlib.new,
                                                  name=HASH_METHODS[self.hash_method])).digest()[:32]
         aes = ENCRYPT_METHODS[self.encrypt_method](session_key, iv=b"\x00"*16)
-        return unpad(aes.decrypt(self.cipher), block_size=BLOCK_SIZE)
+        try: cleartxt = unpad(aes.decrypt(self.cipher), block_size=BLOCK_SIZE)
+        except (ValueError): raise Exception("Incorrect padding. Probably wrong password.")
+        return cleartxt
