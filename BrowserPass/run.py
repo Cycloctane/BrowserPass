@@ -21,7 +21,9 @@ def args_reader() -> argparse.Namespace:
     dpapi_parser.add_argument('--masterkey_dir', '-m', required=True,
                               help="path to directory that contains DPAPI masterkey file")
     dpapi_parser.add_argument('--blob', '-b', required=True, dest='blob_path',
-                              help='path to blob file')
+                              help="path to blob file")
+    dpapi_parser.add_argument('--offset', required=False, dest='offset', default=0, type=int,
+                              help="read offset")
 
     chromium_parser = subparser.add_parser('chromium',
                                            description="Decrypt Choromium browser secrets.")
@@ -58,4 +60,4 @@ def args_handler(args: argparse.Namespace) -> None:
             data = f.read()
         passwd = getpass.getpass("password: ") if args.password is None else args.password
         stdout.buffer.write(
-            decrypt_dpapi(data, args.masterkey_dir, passwd, args.sid))
+            decrypt_dpapi(data, args.masterkey_dir, passwd, args.sid, blob_offset=args.offset))
