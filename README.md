@@ -31,7 +31,18 @@ python -m BrowserPass chromium --sid $windows_sid -p $password\
 
 If password is not specific by `-p`, it will be asked interactively.
 
-## Example
+set `--csv=$dirpath` to write results to csv files and save to specified directory.
+
+```bash
+python -m BrowserPass chromium --sid $windows_sid -p $password\
+  --masterkey_dir $path_to_masterkey_dir\
+  --localstate_path $path_to_localstate_file\
+  --cookie_path $path_to_cookie_file\
+  --logindata_path $path_to_logindata_file
+  --csv $dirpath
+```
+
+## Examples
 
 Decrypt all cookies and passwords from Chromium User Data:
 
@@ -42,6 +53,18 @@ python -m BrowserPass chromium\
   --localstate_path ./Local\ State\
   --cookie_path ./Cookies\
   --logindata_path ./Login\ Data
+```
+
+Save the csv files to current working directory.
+
+```bash
+python -m BrowserPass chromium\
+  --sid S-1-xxxxxxxx\
+  --masterkey_dir ./S-1-xxxxxxxx/\
+  --localstate_path ./Local\ State\
+  --cookie_path ./Cookies\
+  --logindata_path ./Login\ Data
+  --csv .
 ```
 
 testing: decrypt raw DPAPI blob file. Output to stdout.

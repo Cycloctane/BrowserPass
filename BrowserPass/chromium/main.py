@@ -23,7 +23,7 @@ def decrypt_passwd(LocalState_path: str, LoginData_path: str, masterkey_dir: str
 def decrypt_cookie(LocalState_path: str, Cookie_path: str, masterkey_dir: str,
                    user_password: str, user_sid: str):
     decrypted_key = decrypt_dpapi(parse_LocalState(LocalState_path), masterkey_dir,
-                                      user_password, user_sid)
+                                  user_password, user_sid, blob_offset=5)
     cookie_db = CookieDB(Cookie_path)
     cookie_db.decrypt_all(decrypted_key)
     return cookie_db

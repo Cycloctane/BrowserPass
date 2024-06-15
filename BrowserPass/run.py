@@ -1,6 +1,7 @@
 import argparse
 from sys import stdout
 import getpass
+from operator import methodcaller
 
 from . import chromium
 from .dpapi import decrypt_dpapi
@@ -39,6 +40,8 @@ def args_reader() -> argparse.Namespace:
                                  help="path to Chromium Cookie file")
     chromium_parser.add_argument('--logindata_path', required=False,
                                  help="path to Chromium Login Data file")
+    chromium_parser.add_argument('--csv', required=False,
+                                 help="csv file output dir path")
     args = parser.parse_args()
     return args
 
@@ -49,12 +52,13 @@ def args_handler(args: argparse.Namespace) -> None:
             print("Please specific path to Chromium Cookie or Login Data")
             return
         passwd = getpass.getpass("password: ") if args.password is None else args.password
+        method = methodcaller('dump_all') if args.csv is None else methodcaller('write_csv', args.csv)
         if args.cookie_path is not None:
-            chromium.decrypt_cookie(args.localstate_path, args.cookie_path,
-                                    args.masterkey_dir, passwd, args.sid).dump_all()
+            method(chromium.decrypt_cookie(args.localstate_path, args.cookie_path,
+                                           args.masterkey_dir, passwd, args.sid))
         if args.logindata_path is not None:
-            chromium.decrypt_passwd(args.localstate_path, args.logindata_path,
-                                    args.masterkey_dir, passwd, args.sid).dump_all()
+            method(chromium.decrypt_passwd(args.localstate_path, args.logindata_path,
+                                           args.masterkey_dir, passwd, args.sid))
     elif args.command == 'dpapi':
         with open(args.blob_path, 'rb') as f:
             data = f.read()

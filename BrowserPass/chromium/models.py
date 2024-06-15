@@ -1,8 +1,11 @@
 from abc import abstractmethod
 import sqlite3
-from dataclasses import dataclass, field
-from typing import Optional
+from dataclasses import dataclass, field, asdict
+from typing import ClassVar, Optional
 from Crypto.Cipher import AES
+from datetime import datetime
+from os import path
+import csv
 
 
 @dataclass
@@ -21,6 +24,18 @@ class ChromiumEncryptedData():
         except (ValueError): return # decryption failed
         self.decrypted = True
 
+    def dump_as_dict(self) -> dict:
+        output = asdict(self)
+        output.pop('ciphertxt')
+        output.pop('iv')
+        output.pop('tag')
+        return output
+
+    def dump_undecrypted(self) -> None:
+        print("Ciphertext:", self.ciphertxt.hex())
+        print("iv:", self.iv.hex())
+        print("GCM tag:", self.tag.hex())
+
     @abstractmethod
     def dump(self) -> None: ...
 
@@ -35,6 +50,7 @@ class LoginData(ChromiumEncryptedData):
         print("Username:", self.username_value)
         print("Decrypted:", self.decrypted)
         if self.decrypted: print("Password:", self.cleartxt)
+        else: self.dump_undecrypted()
 
 
 @dataclass
@@ -49,10 +65,12 @@ class CookieData(ChromiumEncryptedData):
         print("Cookie Name:", self.name)
         print("Decrypted:", self.decrypted)
         if self.decrypted: print("Cookie Value:", self.cleartxt)
+        else: self.dump_undecrypted()
 
 
 class ChromiumDB():
     data: list[ChromiumEncryptedData]
+    data_tag: ClassVar[str] = "chromium_secrets"
 
     @abstractmethod
     def __init__(self, sqlite_path: str) -> None: ...
@@ -71,8 +89,19 @@ class ChromiumDB():
             i.dump()
             print("-"*32)
 
+    def write_csv(self, file_path: str) -> None:
+        if len(self.data) == 0: return
+        file_name = f"{self.data_tag}_{datetime.now().strftime('%b_%d_%H_%M_%S')}.csv"
+        with open(path.join(file_path, file_name),
+                  'w', newline='') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=self.data[0].dump_as_dict().keys())
+            writer.writeheader()
+            for i in self.data:
+                writer.writerow(i.dump_as_dict())
+
 
 class PasswdDB(ChromiumDB):
+    data_tag = "chormium_passwords"
 
     def __init__(self, sqlite_path: str) -> None:
         conn = sqlite3.connect(sqlite_path)
@@ -92,6 +121,7 @@ class PasswdDB(ChromiumDB):
 
 
 class CookieDB(ChromiumDB):
+    data_tag = "chormium_cookies"
 
     def __init__(self, sqlite_path: str) -> None:
         conn = sqlite3.connect(sqlite_path)
