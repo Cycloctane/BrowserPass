@@ -1,7 +1,7 @@
 import argparse
-from sys import stdout
 import getpass
 from operator import methodcaller
+from sys import stdout
 
 from . import chromium
 from .dpapi import decrypt_dpapi

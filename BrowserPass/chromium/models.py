@@ -1,11 +1,12 @@
-from abc import abstractmethod
+import csv
 import sqlite3
-from dataclasses import dataclass, field, asdict
-from typing import ClassVar, Optional
-from Crypto.Cipher import AES
+from abc import abstractmethod
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from os import path
-import csv
+from typing import ClassVar, Optional
+
+from Crypto.Cipher import AES
 
 
 @dataclass

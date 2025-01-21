@@ -1,11 +1,11 @@
-from functools import partial
-from io import BytesIO
-from hashlib import sha1
 import hmac
 import struct
+from functools import partial
+from hashlib import sha1
+from io import BytesIO
 
-from .utils import pbkdf2_ms, readstruct
 from .crypto_support import ENCRYPT_METHODS, HASH_METHODS
+from .utils import pbkdf2_ms, readstruct
 
 
 def passwordSHA1(password: str) -> bytes:

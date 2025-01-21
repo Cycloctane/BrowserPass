@@ -1,8 +1,8 @@
-from base64 import b64decode
 import json
+from base64 import b64decode
 
-from .models import PasswdDB, CookieDB
 from ..dpapi import decrypt_dpapi
+from .models import CookieDB, PasswdDB
 
 
 def parse_LocalState(file_path: str) -> bytes:

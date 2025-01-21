@@ -1,8 +1,8 @@
+import hashlib
+import hmac
+import struct
 from functools import partial
 from io import BufferedReader, BytesIO
-import struct
-import hmac
-import hashlib
 from typing import Union
 
 

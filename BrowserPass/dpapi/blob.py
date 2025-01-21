@@ -1,13 +1,14 @@
+import hashlib
+import hmac
 from functools import partial
+from hashlib import sha1
 from io import BytesIO
 from uuid import UUID
-import hashlib
-from hashlib import sha1
-from Crypto.Util.Padding import unpad
-import hmac
 
+from Crypto.Util.Padding import unpad
+
+from .crypto_support import BLOCK_SIZE, ENCRYPT_METHODS, HASH_METHODS
 from .utils import readstruct
-from .crypto_support import ENCRYPT_METHODS, HASH_METHODS, BLOCK_SIZE
 
 
 class DPAPIBlob():
